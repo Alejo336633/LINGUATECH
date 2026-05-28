@@ -1097,7 +1097,7 @@ function finishLesson(){
 function showXpToast(msg){const t=document.getElementById('xp-toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500);}
 function retryLesson(){startUnit(state.currentUnit);}
 function goHome(){if(state.lives===0)state.lives=5;switchNav('home');}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelector('.bottom-nav').style.display=id==='auth'?'none':'flex';}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');
 </script>
 </body>
