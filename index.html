@@ -643,7 +643,7 @@ async function handleAuth(){
   }
 }
 
-async function loginGoogle(){ await sbClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://linguatech.vercel.app'}}); }
+async function loginGoogle(){ await sbClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://linguatech-jet.vercel.app'}}); }
 async function logout(){ await sbClient.auth.signOut(); state={xp:0,lives:5,streak:0,completed:{},username:'',currentUnit:null,qIndex:0,correct:0,answered:false,selectedAnswer:null,livesLastLost:null,lastLessonDate:null}; showScreen('auth'); }
 
 async function loadProfile(){
