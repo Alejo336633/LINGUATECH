@@ -1,0 +1,10 @@
+{
+  "name": "LINGUATECH",
+  "short_name": "LINGUATECH",
+  "description": "Aprende comunicación jugando",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f9ff",
+  "theme_color": "#0ea5e9",
+  "icons": []
+}

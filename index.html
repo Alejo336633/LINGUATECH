@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>LINGUATECH</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --primary: #0ea5e9;
+      --primary-dark: #0284c7;
+      --secondary: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #f0f9ff;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 2px 12px rgba(14,165,233,0.10);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* SCREENS */
+    .screen { display: none; min-height: 100vh; padding-bottom: 80px; }
+    .screen.active { display: block; }
+
+    /* AUTH */
+    #auth { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); }
+    .auth-card { background: #fff; border-radius: 24px; padding: 36px 28px; width: 100%; max-width: 380px; box-shadow: 0 8px 40px rgba(14,165,233,0.18); }
+    .auth-logo { text-align: center; margin-bottom: 24px; }
+    .auth-logo-icon { font-size: 48px; margin-bottom: 8px; }
+    .auth-logo h1 { font-size: 2rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+    .auth-logo p { color: var(--text-muted); font-size: 0.9rem; margin-top: 2px; }
+    .auth-tabs { display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 20px; }
+    .auth-tab { flex: 1; padding: 8px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); transition: all 0.2s; border: none; background: none; }
+    .auth-tab.active { background: #fff; color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 14px; }
+    .form-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+    .form-input { width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; font-family: 'Nunito', sans-serif; outline: none; transition: border 0.2s; background: #f8fafc; }
+    .form-input:focus { border-color: var(--primary); background: #fff; }
+    .btn-primary { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: 'Nunito', sans-serif; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .auth-divider { text-align: center; color: var(--text-muted); font-size: 0.85rem; margin: 14px 0; position: relative; }
+    .auth-divider::before, .auth-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border); }
+    .auth-divider::before { left: 0; }
+    .auth-divider::after { right: 0; }
+    .btn-google { width: 100%; padding: 12px; background: #fff; color: var(--text); border: 2px solid var(--border); border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-family: 'Nunito', sans-serif; transition: all 0.2s; }
+    .btn-google:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .auth-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; text-align: center; font-weight: 600; }
+    .auth-success { color: var(--success); font-size: 0.85rem; margin-top: 10px; display: none; text-align: center; font-weight: 600; }
+
+    /* TOP BAR */
+    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+    .user-info { display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #6366f1); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; }
+    .user-name { font-weight: 800; font-size: 0.95rem; }
+    .btn-logout { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 4px; font-family: 'Nunito', sans-serif; }
+
+    /* STATS BAR */
+    .stats-bar { display: flex; gap: 8px; padding: 12px 20px; background: #fff; border-bottom: 1px solid var(--border); }
+    .stat-pill { display: flex; align-items: center; gap: 5px; background: #f8fafc; border-radius: 20px; padding: 5px 12px; font-weight: 800; font-size: 0.85rem; }
+    .stat-pill.xp { color: var(--secondary); }
+    .stat-pill.lives { color: var(--danger); }
+    .stat-pill.streak { color: var(--primary); }
+
+    /* HOME */
+    .home-hero { text-align: center; padding: 28px 20px 16px; }
+    .home-hero h2 { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .home-hero p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+    .section-title { font-size: 0.78rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 20px; margin: 16px 0 10px; }
+    .units-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 0 20px; }
+    .unit-card { background: var(--card); border-radius: 16px; padding: 18px 14px; text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid var(--border); position: relative; box-shadow: var(--shadow); }
+    .unit-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .unit-card.completed { border-color: var(--success); background: #f0fdf4; }
+    .unit-card.locked { opacity: 0.5; cursor: not-allowed; }
+    .unit-card.locked:hover { transform: none; border-color: var(--border); }
+    .unit-icon { font-size: 2rem; margin-bottom: 6px; }
+    .unit-name { font-weight: 800; font-size: 0.9rem; }
+    .unit-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+    .unit-badge { position: absolute; top: 8px; right: 8px; font-size: 0.65rem; font-weight: 800; padding: 2px 7px; border-radius: 20px; }
+    .badge-new { background: #e0f2fe; color: var(--primary); }
+    .badge-done { background: #dcfce7; color: var(--success); }
+    .badge-locked { background: #f1f5f9; color: var(--text-muted); }
+    .badge-hard { background: #fef3c7; color: var(--secondary); }
+
+    /* EXERCISE */
+    #exercise { background: var(--bg); }
+    .ex-top { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #fff; border-bottom: 1px solid var(--border); }
+    .progress-wrap { flex: 1; height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #6366f1); border-radius: 99px; transition: width 0.3s; }
+    .lives-pill { display: flex; align-items: center; gap: 4px; font-weight: 800; color: var(--danger); font-size: 0.9rem; }
+    .question-area { padding: 24px 20px; max-width: 500px; margin: 0 auto; }
+    .q-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+    .q-text { font-size: 1.2rem; font-weight: 800; margin-bottom: 24px; line-height: 1.5; }
+    .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice-btn { padding: 14px 10px; border: 2px solid var(--border); border-radius: 12px; background: #fff; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif; text-align: left; }
+    .choice-btn:hover { border-color: var(--primary); background: #f0f9ff; }
+    .choice-btn.correct { border-color: var(--success); background: #dcfce7; color: var(--success); }
+    .choice-btn.wrong { border-color: var(--danger); background: #fee2e2; color: var(--danger); }
+    .fill-input { width: 100%; padding: 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 1.1rem; font-weight: 700; font-family: 'Nunito', sans-serif; outline: none; transition: border 0.2s; }
+    .fill-input:focus { border-color: var(--primary); }
+    .feedback-bar { margin-top: 16px; padding: 12px 16px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; min-height: 44px; background: transparent; }
+    .feedback-bar.correct-fb { background: #dcfce7; color: var(--success); }
+    .feedback-bar.wrong-fb { background: #fee2e2; color: var(--danger); }
+    #unit-timer { text-align: center; font-size: 1.4rem; font-weight: 900; color: var(--secondary); padding: 8px; background: #fffbeb; border-bottom: 1px solid #fde68a; }
+
+    /* RESULT */
+    #result { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 32px 20px; text-align: center; }
+    .result-icon { font-size: 4rem; margin-bottom: 12px; }
+    .result-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
+    .result-sub { color: var(--text-muted); margin-bottom: 28px; }
+    .result-stats { display: flex; gap: 16px; margin-bottom: 28px; }
+    .result-stat { background: #fff; border-radius: 16px; padding: 16px 20px; text-align: center; border: 2px solid var(--border); min-width: 80px; }
+    .result-stat-val { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .result-stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+    .result-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
+
+    /* SPEED MODE */
+    #speed { background: var(--bg); }
+    .speed-intro { text-align: center; padding: 40px 24px; }
+    .speed-intro h2 { font-size: 1.8rem; font-weight: 900; margin-bottom: 8px; }
+    .speed-intro p { color: var(--text-muted); margin-bottom: 28px; }
+    .timer-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; border-radius: 99px; font-size: 2rem; font-weight: 900; background: #fff; border: 3px solid var(--primary); color: var(--primary); margin-bottom: 20px; }
+    .timer-pill.warning { border-color: var(--secondary); color: var(--secondary); }
+    .timer-pill.danger { border-color: var(--danger); color: var(--danger); }
+    .speed-game { padding: 16px 20px; max-width: 500px; margin: 0 auto; }
+    .speed-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .speed-score-display { font-size: 1.1rem; font-weight: 800; }
+    .speed-q { font-size: 1.4rem; font-weight: 900; text-align: center; margin-bottom: 20px; padding: 20px; background: #fff; border-radius: 16px; border: 2px solid var(--border); }
+    .speed-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .speed-choice { padding: 16px; border: 2px solid var(--border); border-radius: 12px; background: #fff; font-size: 1rem; font-weight: 800; cursor: pointer; transition: all 0.15s; font-family: 'Nunito', sans-serif; }
+    .speed-choice:hover { border-color: var(--primary); background: #f0f9ff; }
+    .speed-choice.correct { border-color: var(--success); background: #dcfce7; }
+    .speed-choice.wrong { border-color: var(--danger); background: #fee2e2; }
+
+    /* AI MODE */
+    #ai { background: var(--bg); }
+    .ai-header { text-align: center; padding: 28px 20px 16px; }
+    .ai-header h2 { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .ai-header p { color: var(--text-muted); font-size: 0.9rem; }
+    .ai-topics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 20px; }
+    .ai-topic-btn { padding: 16px; border: 2px solid var(--border); border-radius: 14px; background: #fff; font-size: 0.9rem; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; transition: all 0.2s; text-align: center; }
+    .ai-topic-btn:hover, .ai-topic-btn.selected { border-color: var(--primary); background: #f0f9ff; color: var(--primary); }
+    .ai-loading { text-align: center; padding: 40px 20px; display: none; }
+    .ai-loading p { color: var(--text-muted); margin-top: 12px; font-weight: 600; }
+    .ai-spinner { width: 48px; height: 48px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-question-area { padding: 16px 20px; max-width: 500px; margin: 0 auto; display: none; }
+
+    /* RANKING */
+    #ranking { background: var(--bg); }
+    .rank-header { text-align: center; padding: 24px 20px 8px; }
+    .rank-header h2 { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+    .rank-podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; padding: 16px 20px; }
+    .podium-item { text-align: center; flex: 1; max-width: 110px; }
+    .podium-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; color: #fff; margin: 0 auto 4px; }
+    .podium-1 .podium-avatar { background: linear-gradient(135deg, #f59e0b, #d97706); width: 56px; height: 56px; font-size: 1.3rem; }
+    .podium-2 .podium-avatar { background: linear-gradient(135deg, #94a3b8, #64748b); }
+    .podium-3 .podium-avatar { background: linear-gradient(135deg, #cd7c2f, #a16207); }
+    .podium-name { font-size: 0.75rem; font-weight: 800; margin-bottom: 2px; }
+    .podium-xp { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+    .podium-block { border-radius: 8px 8px 0 0; width: 100%; }
+    .podium-block-1 { height: 60px; background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .podium-block-2 { height: 40px; background: linear-gradient(135deg, #f1f5f9, #e2e8f0); }
+    .podium-block-3 { height: 28px; background: linear-gradient(135deg, #fef3c7, #fed7aa); }
+    .podium-crown { font-size: 1.2rem; margin-bottom: 2px; }
+    .rank-list { padding: 0 20px 20px; }
+    .rank-row { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; border: 2px solid var(--border); }
+    .rank-row.me { border-color: var(--primary); background: #f0f9ff; }
+    .rank-pos { width: 28px; text-align: center; font-weight: 900; font-size: 0.9rem; }
+    .rank-pos.top1 { color: #f59e0b; }
+    .rank-pos.top2 { color: #94a3b8; }
+    .rank-pos.top3 { color: #cd7c2f; }
+    .rank-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #6366f1); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; }
+    .rank-info { flex: 1; }
+    .rank-name { font-weight: 800; font-size: 0.9rem; }
+    .rank-sub { font-size: 0.75rem; color: var(--text-muted); }
+    .rank-xp { font-weight: 900; color: var(--primary); font-size: 0.9rem; }
+    .rank-loading { text-align: center; padding: 32px; color: var(--text-muted); font-weight: 600; }
+    .my-rank-card { display: flex; align-items: center; gap: 12px; background: #fff; border-radius: 14px; padding: 12px 14px; margin: 0 20px 12px; border: 2px solid var(--primary); }
+    .my-rank-pos { font-size: 1.4rem; font-weight: 900; color: var(--primary); }
+    .my-rank-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+
+    /* PROFILE */
+    #profile { background: var(--bg); }
+    .profile-card { background: #fff; margin: 20px; border-radius: 20px; padding: 24px; text-align: center; border: 2px solid var(--border); }
+    .profile-avatar-big { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #6366f1); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; margin: 0 auto 12px; }
+    .profile-name { font-size: 1.3rem; font-weight: 900; }
+    .profile-email { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px; }
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .profile-stat { background: #f8fafc; border-radius: 12px; padding: 12px 8px; text-align: center; }
+    .profile-stat-val { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
+    .profile-stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+    .profile-level { display: inline-block; background: linear-gradient(135deg, var(--primary), #6366f1); color: #fff; border-radius: 20px; padding: 4px 16px; font-size: 0.85rem; font-weight: 800; margin-bottom: 16px; }
+    .username-form { display: flex; gap: 8px; margin-top: 12px; }
+    .username-input { flex: 1; padding: 10px 14px; border: 2px solid var(--border); border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; outline: none; }
+    .username-input:focus { border-color: var(--primary); }
+    .btn-save { padding: 10px 16px; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; }
+    .lessons-list { margin: 0 20px 20px; }
+    .lesson-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; border: 2px solid var(--border); }
+    .lesson-info { display: flex; align-items: center; gap: 8px; }
+    .lesson-icon { font-size: 1.2rem; }
+    .lesson-name { font-weight: 700; font-size: 0.9rem; }
+    .lesson-status { font-size: 0.75rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; }
+    .status-done { background: #dcfce7; color: var(--success); }
+    .status-locked { background: #f1f5f9; color: var(--text-muted); }
+    .status-available { background: #e0f2fe; color: var(--primary); }
+
+    /* BOTTOM NAV */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); display: flex; z-index: 200; }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0 8px; border: none; background: none; color: var(--text-muted); cursor: pointer; font-size: 0.65rem; font-weight: 800; gap: 3px; font-family: 'Nunito', sans-serif; transition: color 0.2s; }
+    .nav-btn i { font-size: 20px; }
+    .nav-btn.active { color: var(--primary); }
+
+    /* MISC */
+    .xp-toast { position: fixed; top: 80px; right: 20px; background: var(--primary); color: #fff; padding: 8px 18px; border-radius: 20px; font-weight: 800; font-size: 0.9rem; opacity: 0; transform: translateY(-10px); transition: all 0.3s; z-index: 999; pointer-events: none; }
+    .xp-toast.show { opacity: 1; transform: translateY(0); }
+    .saving-indicator { font-size: 0.75rem; color: var(--success); font-weight: 700; text-align: center; padding: 4px; }
+    .btn-secondary { width: 100%; padding: 12px; background: #fff; color: var(--primary); border: 2px solid var(--primary); border-radius: 12px; font-size: 1rem; font-weight: 800; cursor: pointer; font-family: 'Nunito', sans-serif; transition: all 0.2s; }
+    .btn-secondary:hover { background: #f0f9ff; }
+    .section-header { padding: 16px 20px 0; }
+    .section-header h3 { font-size: 1rem; font-weight: 900; color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- XP TOAST -->
+<div class="xp-toast" id="xp-toast"></div>
+
+<!-- AUTH SCREEN -->
+<div id="auth" class="screen active">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">📝</div>
+      <h1>LINGUATECH</h1>
+      <p>Aprende comunicación jugando</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="auth-tab" id="tab-register" onclick="switchTab('register')">Registrarse</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Correo</label>
+      <input class="form-input" type="email" id="auth-email" placeholder="tu@correo.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseña</label>
+      <input class="form-input" type="password" id="auth-password" placeholder="••••••••"/>
+    </div>
+    <button class="btn-primary" id="auth-btn" onclick="handleAuth()">Iniciar sesión</button>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-success" id="auth-success"></div>
+    <div class="auth-divider">o</div>
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z"/></svg>
+      Continuar con Google
+    </button>
+  </div>
+</div>
+
+<!-- HOME SCREEN -->
+<div id="home" class="screen">
+  <div class="top-bar">
+    <div class="user-info">
+      <div class="avatar" id="user-avatar">?</div>
+      <span class="user-name" id="user-name"></span>
+    </div>
+    <button class="btn-logout" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill streak"><i class="ti ti-flame"></i><span id="home-streak">0</span></div>
+    <div class="stat-pill xp"><i class="ti ti-bolt"></i><span id="home-xp">0 XP</span></div>
+    <div class="stat-pill lives"><i class="ti ti-heart"></i><span id="home-lives">5</span></div>
+  </div>
+  <div class="home-hero">
+    <h2>📝 LINGUATECH</h2>
+    <p>Aprende comunicación jugando</p>
+  </div>
+  <div class="section-title">NIVEL 1 — FUNDAMENTOS</div>
+  <div class="units-grid" id="grid-1"></div>
+  <div class="section-title">NIVEL 2 — INTERMEDIO</div>
+  <div class="units-grid" id="grid-2"></div>
+  <div class="section-title">NIVEL 3 — AVANZADO</div>
+  <div class="units-grid" id="grid-3"></div>
+  <div class="saving-indicator" id="saving-indicator"></div>
+</div>
+
+<!-- EXERCISE SCREEN -->
+<div id="exercise" class="screen">
+  <div class="ex-top">
+    <button onclick="goHome()" style="background:none;border:none;cursor:pointer;color:#9ca3af;"><i class="ti ti-x" style="font-size:20px;"></i></button>
+    <div class="progress-wrap"><div class="progress-fill" id="progress-bar" style="width:0%"></div></div>
+    <div class="lives-pill"><i class="ti ti-heart"></i><span id="ex-lives">5</span></div>
+  </div>
+  <div id="unit-timer" style="display:none;">⏱️ <span id="unit-timer-count">30</span>s</div>
+  <div class="question-area">
+    <p class="q-label" id="q-label">PREGUNTA</p>
+    <p class="q-text" id="q-text"></p>
+    <div id="q-body"></div>
+    <div class="feedback-bar" id="feedback-bar"><i id="fb-icon" style="font-size:18px;"></i><span id="fb-text"></span></div>
+    <button class="btn-primary" id="check-btn" disabled onclick="checkAnswer()" style="margin-top:16px;">Comprobar</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result" class="screen">
+  <div class="result-icon" id="result-icon">🎉</div>
+  <div class="result-title" id="result-title">¡Lección completada!</div>
+  <div class="result-sub" id="result-sub"></div>
+  <div class="result-stats">
+    <div class="result-stat"><div class="result-stat-val" id="r-correct">0</div><div class="result-stat-label">Correctas</div></div>
+    <div class="result-stat"><div class="result-stat-val" id="r-wrong">0</div><div class="result-stat-label">Incorrectas</div></div>
+    <div class="result-stat"><div class="result-stat-val" id="r-xp">+0</div><div class="result-stat-label">XP ganado</div></div>
+  </div>
+  <div class="result-btns">
+    <button class="btn-primary" onclick="goHome()">🏠 Inicio</button>
+    <button class="btn-secondary" onclick="retryLesson()">🔄 Reintentar</button>
+  </div>
+</div>
+
+<!-- SPEED SCREEN -->
+<div id="speed" class="screen">
+  <div class="top-bar">
+    <span style="font-weight:900;font-size:1.1rem;">⚡ Modo Velocidad</span>
+  </div>
+  <div id="speed-intro-view" class="speed-intro">
+    <div class="timer-pill" id="timer-pill">⏱️ <span id="timer-count">60</span></div>
+    <h2>¡A toda velocidad!</h2>
+    <p>Responde el mayor número de preguntas en 60 segundos</p>
+    <button class="btn-primary" style="max-width:280px;margin:0 auto;" onclick="startSpeedMode()">¡Empezar!</button>
+  </div>
+  <div id="speed-game-view" style="display:none;" class="speed-game">
+    <div class="speed-header">
+      <div class="timer-pill" id="timer-pill2" style="font-size:1.2rem;padding:6px 16px;">⏱️ <span id="timer-count2">60</span></div>
+      <div class="speed-score-display">⚡ <span id="speed-score">0</span></div>
+      <div id="speed-streak-display" style="font-weight:800;color:#f59e0b;">Racha: 0 🔥</div>
+    </div>
+    <div class="speed-q" id="speed-q-text"></div>
+    <div class="speed-choices" id="speed-choices"></div>
+  </div>
+  <div id="speed-result-view" style="display:none;text-align:center;padding:40px 20px;">
+    <div style="font-size:3.5rem;margin-bottom:12px;" id="speed-result-icon">⚡</div>
+    <div style="font-size:1.6rem;font-weight:900;margin-bottom:8px;" id="speed-result-title">¡Bien hecho!</div>
+    <div style="color:var(--text-muted);margin-bottom:24px;" id="speed-result-sub"></div>
+    <div class="result-stats" style="justify-content:center;">
+      <div class="result-stat"><div class="result-stat-val" id="sr-correct">0</div><div class="result-stat-label">Correctas</div></div>
+      <div class="result-stat"><div class="result-stat-val" id="sr-xp">+0</div><div class="result-stat-label">XP</div></div>
+      <div class="result-stat"><div class="result-stat-val" id="sr-streak">0</div><div class="result-stat-label">Mejor racha</div></div>
+    </div>
+    <button class="btn-primary" style="max-width:280px;margin:0 auto;" onclick="startSpeedMode()">🔄 Jugar de nuevo</button>
+  </div>
+</div>
+
+<!-- AI SCREEN -->
+<div id="ai" class="screen">
+  <div class="top-bar">
+    <span style="font-weight:900;font-size:1.1rem;">🤖 Modo IA</span>
+    <span style="font-size:0.8rem;color:var(--text-muted);font-weight:700;">by Claude</span>
+  </div>
+  <div class="ai-header">
+    <h2>Preguntas con IA</h2>
+    <p>Elige un tema y la IA generará preguntas personalizadas</p>
+  </div>
+  <div id="ai-topic-select">
+    <div class="ai-topics">
+      <button class="ai-topic-btn" onclick="selectAiTopic('Sinónimos y antónimos')">🔄 Sinónimos y antónimos</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Ortografía')">✍️ Ortografía</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Gramática básica')">📖 Gramática</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Comprensión lectora')">📚 Comprensión lectora</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Tipos de texto')">📄 Tipos de texto</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Signos de puntuación')">❗ Puntuación</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Vocabulario avanzado')">💡 Vocabulario</button>
+      <button class="ai-topic-btn" onclick="selectAiTopic('Figuras literarias')">🎭 Figuras literarias</button>
+    </div>
+  </div>
+  <div class="ai-loading" id="ai-loading">
+    <div class="ai-spinner"></div>
+    <p>Generando preguntas con IA...</p>
+  </div>
+  <div class="ai-question-area" id="ai-question-area">
+    <p class="q-label" id="ai-counter">Pregunta 1 de 5</p>
+    <p class="q-text" id="ai-q-text"></p>
+    <div id="ai-choices"></div>
+    <div class="feedback-bar" id="ai-feedback"><i id="ai-fb-icon"></i><span id="ai-fb-text"></span></div>
+    <div id="ai-hint" style="display:none;margin-top:8px;padding:10px 14px;background:#fffbeb;border-radius:10px;font-size:0.85rem;color:#92400e;font-weight:600;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button class="btn-secondary" style="flex:1;" onclick="showAiHint()">💡 Pista</button>
+      <button class="btn-primary" style="flex:2;" id="ai-next-btn" disabled onclick="aiNextQuestion()">Comprobar</button>
+    </div>
+  </div>
+  <div id="ai-result" style="display:none;text-align:center;padding:40px 20px;">
+    <div style="font-size:3rem;margin-bottom:12px;">🎉</div>
+    <div style="font-size:1.5rem;font-weight:900;margin-bottom:8px;">¡Sesión completada!</div>
+    <div style="color:var(--text-muted);margin-bottom:24px;" id="ai-result-sub"></div>
+    <div class="result-stats" style="justify-content:center;">
+      <div class="result-stat"><div class="result-stat-val" id="ai-res-correct">0</div><div class="result-stat-label">Correctas</div></div>
+      <div class="result-stat"><div class="result-stat-val" id="ai-res-xp">+0</div><div class="result-stat-label">XP</div></div>
+    </div>
+    <button class="btn-primary" style="max-width:280px;margin:0 auto;" onclick="resetAiMode()">🔄 Nuevo tema</button>
+  </div>
+</div>
+
+<!-- RANKING SCREEN -->
+<div id="ranking" class="screen">
+  <div class="top-bar">
+    <span style="font-weight:900;font-size:1.1rem;">🏆 Ranking</span>
+  </div>
+  <div class="rank-header"><h2>Top Jugadores</h2></div>
+  <div id="my-rank-card"></div>
+  <div class="rank-podium" id="rank-podium"></div>
+  <div class="rank-list" id="rank-list"><div class="rank-loading">Cargando ranking...</div></div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="profile" class="screen">
+  <div class="top-bar">
+    <span style="font-weight:900;font-size:1.1rem;">👤 Perfil</span>
+  </div>
+  <div class="profile-card">
+    <div class="profile-avatar-big" id="profile-avatar-big">?</div>
+    <div class="profile-name" id="profile-display-name"></div>
+    <div class="profile-email" id="profile-email"></div>
+    <div class="profile-level" id="profile-level">Nivel 1</div>
+    <div class="profile-stats">
+      <div class="profile-stat"><div class="profile-stat-val" id="profile-xp">0</div><div class="profile-stat-label">XP Total</div></div>
+      <div class="profile-stat"><div class="profile-stat-val" id="profile-streak">0</div><div class="profile-stat-label">Racha</div></div>
+      <div class="profile-stat"><div class="profile-stat-val" id="profile-completed">0/12</div><div class="profile-stat-label">Lecciones</div></div>
+    </div>
+    <div class="username-form">
+      <input class="username-input" id="profile-username-input" placeholder="Tu nombre de usuario"/>
+      <button class="btn-save" onclick="saveUsername()">Guardar</button>
+    </div>
+  </div>
+  <div class="section-header"><h3>Mis lecciones</h3></div>
+  <div class="lessons-list" id="lessons-list"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="switchNav('home')"><i class="ti ti-home"></i>Inicio</button>
+  <button class="nav-btn" id="nav-speed" onclick="switchNav('speed')"><i class="ti ti-bolt"></i>Velocidad</button>
+  <button class="nav-btn" id="nav-ai" onclick="switchNav('ai')"><i class="ti ti-robot"></i>IA</button>
+  <button class="nav-btn" id="nav-ranking" onclick="switchNav('ranking')"><i class="ti ti-trophy"></i>Ranking</button>
+  <button class="nav-btn" id="nav-profile" onclick="switchNav('profile')"><i class="ti ti-user"></i>Perfil</button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://bbwrodlnqqhzlignusja.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJid3JvZGxucXFoemxpZ251c2phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc3NjIxNDUsImV4cCI6MjA2MzMzODE0NX0.J2dOECeyZjwM4XJj2g8fIoE-F6XOjFkB8IVfBNMU3pU';
+const { createClient } = window.supabase;
+const sbClient = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, storage: window.localStorage }
+});
+
+const UNITS = [
+  { id:'sinonimos', name:'Sinónimos', icon:'🔄', tier:1, req:[], questions:[
+    {type:'choice',text:'¿Cuál es el sinónimo de "feliz"?',answer:'Contento',choices:['Triste','Contento','Enojado','Asustado']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "rápido"?',answer:'Veloz',choices:['Lento','Pesado','Veloz','Quieto']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "bonito"?',answer:'Hermoso',choices:['Feo','Horrible','Hermoso','Oscuro']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "grande"?',answer:'Enorme',choices:['Pequeño','Enorme','Mínimo','Corto']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "valiente"?',answer:'Audaz',choices:['Cobarde','Tímido','Audaz','Débil']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "inteligente"?',answer:'Listo',choices:['Tonto','Listo','Ignorante','Confuso']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "empezar"?',answer:'Iniciar',choices:['Terminar','Pausar','Iniciar','Detener']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "hablar"?',answer:'Conversar',choices:['Callar','Conversar','Ignorar','Escuchar']},
+  ]},
+  { id:'antonimos', name:'Antónimos', icon:'↔️', tier:1, req:[], questions:[
+    {type:'choice',text:'¿Cuál es el antónimo de "día"?',answer:'Noche',choices:['Mañana','Tarde','Noche','Amanecer']},
+    {type:'choice',text:'¿Cuál es el antónimo de "frío"?',answer:'Caliente',choices:['Tibio','Helado','Caliente','Fresco']},
+    {type:'choice',text:'¿Cuál es el antónimo de "alto"?',answer:'Bajo',choices:['Largo','Bajo','Gordo','Ancho']},
+    {type:'choice',text:'¿Cuál es el antónimo de "amor"?',answer:'Odio',choices:['Cariño','Afecto','Odio','Ternura']},
+    {type:'choice',text:'¿Cuál es el antónimo de "verdad"?',answer:'Mentira',choices:['Realidad','Hecho','Mentira','Opinión']},
+    {type:'choice',text:'¿Cuál es el antónimo de "abrir"?',answer:'Cerrar',choices:['Girar','Empujar','Cerrar','Jalar']},
+    {type:'choice',text:'¿Cuál es el antónimo de "llegada"?',answer:'Partida',choices:['Viaje','Partida','Destino','Ruta']},
+    {type:'choice',text:'¿Cuál es el antónimo de "guerra"?',answer:'Paz',choices:['Batalla','Conflicto','Paz','Lucha']},
+  ]},
+  { id:'ortografia', name:'Ortografía', icon:'✍️', tier:1, req:[], questions:[
+    {type:'choice',text:'¿Cómo se escribe correctamente?',answer:'Haber',choices:['Aber','Haber','Aver','Haver']},
+    {type:'choice',text:'¿Cuál es la forma correcta?',answer:'Examen',choices:['Exámen','Esamen','Examen','Exsamen']},
+    {type:'choice',text:'¿Cómo se escribe?',answer:'Bacteria',choices:['Vacteria','Bacteria','Bactéria','Bacterya']},
+    {type:'choice',text:'¿Cuál tiene tilde correctamente?',answer:'Árbol',choices:['Arbol','Árbol','Árból','Arbòl']},
+    {type:'choice',text:'¿Cómo se escribe correctamente?',answer:'Colegio',choices:['Colejio','Colegio','Colejío','Collegío']},
+    {type:'choice',text:'¿Cuál es la forma correcta?',answer:'Caballo',choices:['Cavallo','Kaballo','Caballo','Caballó']},
+    {type:'choice',text:'¿Cómo se escribe?',answer:'Huevo',choices:['Guevo','Wevo','Uevo','Huevo']},
+    {type:'choice',text:'¿Cuál tiene tilde correctamente?',answer:'Música',choices:['Musica','Músíca','Música','Musíca']},
+  ]},
+  { id:'gramatica', name:'Gramática', icon:'📖', tier:1, req:[], questions:[
+    {type:'choice',text:'¿Qué es un sustantivo?',answer:'Nombre de personas, animales o cosas',choices:['Acción o estado','Nombre de personas, animales o cosas','Calidad o característica','Modo de acción']},
+    {type:'choice',text:'¿Cuál es el verbo en: "El niño corre rápido"?',answer:'Corre',choices:['Niño','El','Corre','Rápido']},
+    {type:'choice',text:'¿Qué tipo de oración es: "¡Qué bonito día!"?',answer:'Exclamativa',choices:['Interrogativa','Declarativa','Exclamativa','Negativa']},
+    {type:'choice',text:'¿Cuál es el adjetivo en: "La casa roja es grande"?',answer:'Roja',choices:['Casa','La','Roja','Es']},
+    {type:'choice',text:'¿Qué es un pronombre?',answer:'Reemplaza al sustantivo',choices:['Modifica al verbo','Reemplaza al sustantivo','Une palabras','Indica acción']},
+    {type:'choice',text:'¿Cuántas sílabas tiene "mariposa"?',answer:'4',choices:['2','3','4','5']},
+    {type:'choice',text:'¿Cuál es el plural de "lápiz"?',answer:'Lápices',choices:['Lápizs','Lápizes','Lápices','Lapices']},
+    {type:'choice',text:'¿Qué es un adverbio?',answer:'Modifica al verbo, adjetivo u otro adverbio',choices:['Nombre de cosa','Acción del sujeto','Modifica al verbo, adjetivo u otro adverbio','Une oraciones']},
+  ]},
+  { id:'vocabulario', name:'Vocabulario', icon:'💡', tier:2, req:['sinonimos','antonimos'], questions:[
+    {type:'choice',text:'¿Qué significa "efímero"?',answer:'Que dura poco tiempo',choices:['Muy largo','Que dura poco tiempo','Muy brillante','Muy pesado']},
+    {type:'choice',text:'¿Qué significa "verídico"?',answer:'Verdadero',choices:['Falso','Dudoso','Verdadero','Imaginario']},
+    {type:'choice',text:'¿Qué significa "nocturno"?',answer:'Perteneciente a la noche',choices:['Del día','De la mañana','Perteneciente a la noche','Del mediodía']},
+    {type:'choice',text:'¿Qué significa "ámbito"?',answer:'Espacio o campo de algo',choices:['Tipo de animal','Espacio o campo de algo','Color brillante','Tipo de planta']},
+    {type:'choice',text:'¿Qué significa "fragilidad"?',answer:'Calidad de ser frágil',choices:['Gran fortaleza','Calidad de ser frágil','Mucha velocidad','Gran tamaño']},
+    {type:'choice',text:'¿Qué significa "narrar"?',answer:'Contar una historia',choices:['Dibujar algo','Contar una historia','Cantar una canción','Bailar un ritmo']},
+    {type:'choice',text:'¿Qué significa "metáfora"?',answer:'Comparación sin usar "como"',choices:['Tipo de cuento','Comparación sin usar "como"','Tipo de poema','Figura geométrica']},
+    {type:'choice',text:'¿Qué significa "coherente"?',answer:'Lógico y consistente',choices:['Muy rápido','Muy colorido','Lógico y consistente','Muy pequeño']},
+  ]},
+  { id:'comprension', name:'Comprensión lectora', icon:'📚', tier:2, req:['gramatica'], questions:[
+    {type:'choice',text:'Lee: "Juan corrió hacia la tienda porque necesitaba pan". ¿Por qué corrió Juan?',answer:'Porque necesitaba pan',choices:['Porque tenía miedo','Porque necesitaba pan','Porque llegaba tarde','Porque hacía frío']},
+    {type:'choice',text:'¿Qué es la idea principal de un texto?',answer:'El mensaje más importante',choices:['El primer párrafo','El mensaje más importante','Los detalles del texto','El título del texto']},
+    {type:'choice',text:'¿Qué tipo de texto informa sobre hechos reales?',answer:'Texto informativo',choices:['Cuento','Poema','Texto informativo','Fábula']},
+    {type:'choice',text:'Lee: "El sol brillaba y los pájaros cantaban". ¿Qué ambiente describe?',answer:'Alegre y soleado',choices:['Triste y lluvioso','Alegre y soleado','Oscuro y frío','Misterioso y silencioso']},
+    {type:'choice',text:'¿Qué es inferir en lectura?',answer:'Sacar conclusiones no escritas',choices:['Copiar el texto','Leer muy rápido','Sacar conclusiones no escritas','Resumir el texto']},
+    {type:'choice',text:'¿Qué es el párrafo en un texto?',answer:'Conjunto de oraciones sobre una idea',choices:['Una sola oración','El título del texto','Conjunto de oraciones sobre una idea','El final del texto']},
+    {type:'choice',text:'¿Cuál es la estructura de un cuento?',answer:'Inicio, nudo, desenlace',choices:['Título, desarrollo, fin','Problema, solución, moraleja','Inicio, nudo, desenlace','Introducción, cuerpo, conclusión']},
+    {type:'choice',text:'¿Qué es el narrador en un cuento?',answer:'Quien cuenta la historia',choices:['El personaje principal','El autor del libro','Quien cuenta la historia','El lector del cuento']},
+  ]},
+  { id:'puntuacion', name:'Puntuación', icon:'❗', tier:2, req:['ortografia'], questions:[
+    {type:'choice',text:'¿Para qué se usa la coma (,)?',answer:'Para separar elementos en una lista',choices:['Para terminar una oración','Para separar elementos en una lista','Para hacer preguntas','Para mostrar sorpresa']},
+    {type:'choice',text:'¿Qué signo va al final de una pregunta?',answer:'¿?',choices:['¡!','¿?','...','—']},
+    {type:'choice',text:'¿Cuándo se usa el punto (.) ?',answer:'Al terminar una oración completa',choices:['Al iniciar un párrafo','Al terminar una oración completa','En medio de una lista','Antes de un nombre propio']},
+    {type:'choice',text:'¿Para qué sirven los puntos suspensivos (...)?',answer:'Indicar que algo queda incompleto',choices:['Terminar el texto','Indicar que algo queda incompleto','Hacer énfasis','Separar párrafos']},
+    {type:'choice',text:'¿Cuándo se usan los dos puntos (:)?',answer:'Antes de una enumeración o cita',choices:['Para terminar párrafos','Antes de una enumeración o cita','En medio de palabras','Para unir oraciones largas']},
+    {type:'choice',text:'¿Para qué se usan las comillas ("")?',answer:'Para citar palabras textuales',choices:['Para indicar pausa','Para citar palabras textuales','Para listar elementos','Para terminar oraciones']},
+    {type:'choice',text:'¿Cuándo se usa el punto y coma (;)?',answer:'Para separar oraciones relacionadas',choices:['Para terminar el texto','Para hacer preguntas','Para separar oraciones relacionadas','Para indicar diálogo']},
+    {type:'choice',text:'¿Para qué sirve el guion largo (—)?',answer:'Para indicar diálogo o aclaración',choices:['Para separar sílabas','Para indicar diálogo o aclaración','Para terminar párrafos','Para unir palabras compuestas']},
+  ]},
+  { id:'tipos_texto', name:'Tipos de texto', icon:'📄', tier:2, req:['comprension'], questions:[
+    {type:'choice',text:'¿Qué es una fábula?',answer:'Cuento con moraleja y animales como personajes',choices:['Poema con rima','Texto científico','Cuento con moraleja y animales como personajes','Noticia periodística']},
+    {type:'choice',text:'¿Cuál es la característica del texto descriptivo?',answer:'Detalla cómo es algo o alguien',choices:['Cuenta una historia','Detalla cómo es algo o alguien','Da instrucciones','Expresa opiniones']},
+    {type:'choice',text:'¿Qué es un texto argumentativo?',answer:'Defiende una opinión con razones',choices:['Cuenta un cuento','Lista instrucciones','Defiende una opinión con razones','Describe un lugar']},
+    {type:'choice',text:'¿Cuál es el objetivo de un texto instructivo?',answer:'Dar pasos para hacer algo',choices:['Entretener al lector','Informar sobre noticias','Dar pasos para hacer algo','Expresar sentimientos']},
+    {type:'choice',text:'¿Qué es la poesía?',answer:'Texto literario con ritmo y expresión de sentimientos',choices:['Texto informativo largo','Texto literario con ritmo y expresión de sentimientos','Lista de instrucciones','Texto con moraleja']},
+    {type:'choice',text:'¿Qué caracteriza a una noticia?',answer:'Informa hechos reales recientes',choices:['Tiene personajes ficticios','Informa hechos reales recientes','Tiene moraleja al final','Es un texto poético']},
+    {type:'choice',text:'¿Qué es un mito?',answer:'Relato que explica el origen de algo',choices:['Texto científico','Historia deportiva','Relato que explica el origen de algo','Instrucciones de cocina']},
+    {type:'choice',text:'¿Qué es una carta?',answer:'Texto escrito dirigido a una persona',choices:['Poema largo','Texto escrito dirigido a una persona','Tipo de cuento','Artículo de opinión']},
+  ]},
+  { id:'figuras', name:'Figuras literarias', icon:'🎭', tier:3, req:['vocabulario','tipos_texto'], questions:[
+    {type:'choice',text:'¿Qué figura usa "el sol es una moneda de oro"?',answer:'Metáfora',choices:['Símil','Metáfora','Hipérbole','Personificación']},
+    {type:'choice',text:'¿Qué figura usa "rápido como el viento"?',answer:'Símil',choices:['Metáfora','Hipérbole','Símil','Onomatopeya']},
+    {type:'choice',text:'¿Qué figura usa "el mar cantaba por las noches"?',answer:'Personificación',choices:['Metáfora','Símil','Personificación','Aliteración']},
+    {type:'choice',text:'¿Qué figura usa "te lo he dicho mil veces"?',answer:'Hipérbole',choices:['Símil','Metáfora','Hipérbole','Ironía']},
+    {type:'choice',text:'¿Qué figura repite el mismo sonido: "el silencio susurraba suavemente"?',answer:'Aliteración',choices:['Rima','Aliteración','Metáfora','Hipérbole']},
+    {type:'choice',text:'¿Qué figura imita sonidos: "el gato hace miau"?',answer:'Onomatopeya',choices:['Metáfora','Aliteración','Onomatopeya','Símil']},
+    {type:'choice',text:'¿Qué figura dice lo contrario de lo que piensa?',answer:'Ironía',choices:['Metáfora','Hipérbole','Ironía','Símil']},
+    {type:'choice',text:'¿Qué figura contradice la lógica: "el silencio gritaba"?',answer:'Oxímoron',choices:['Metáfora','Personificación','Aliteración','Oxímoron']},
+  ]},
+  { id:'redaccion', name:'Redacción', icon:'✏️', tier:3, req:['puntuacion','figuras'], questions:[
+    {type:'choice',text:'¿Qué es la coherencia en un texto?',answer:'Las ideas se relacionan con lógica',choices:['Usar palabras difíciles','Las ideas se relacionan con lógica','Escribir muchos párrafos','Usar signos de puntuación']},
+    {type:'choice',text:'¿Qué es la cohesión textual?',answer:'Las partes del texto están conectadas',choices:['Tener buena ortografía','Las partes del texto están conectadas','Usar lenguaje formal','Tener un título']},
+    {type:'choice',text:'¿Qué son los conectores?',answer:'Palabras que unen ideas',choices:['Tipos de verbos','Palabras que unen ideas','Signos de puntuación','Tipos de sustantivos']},
+    {type:'choice',text:'¿Cuál es un conector de contraste?',answer:'Sin embargo',choices:['Además','Por lo tanto','Sin embargo','En conclusión']},
+    {type:'choice',text:'¿Qué es el borrador en la escritura?',answer:'Primera versión del texto',choices:['Versión final','Primera versión del texto','El título del texto','El último párrafo']},
+    {type:'choice',text:'¿Qué es la revisión de un texto?',answer:'Corregir errores y mejorar el escrito',choices:['Escribir rápido','Copiar el texto','Corregir errores y mejorar el escrito','Leer en voz alta']},
+    {type:'choice',text:'¿Qué va en la introducción de un texto?',answer:'Presentación del tema',choices:['Las conclusiones','Los argumentos principales','Presentación del tema','El resumen final']},
+    {type:'choice',text:'¿Qué es parafrasear?',answer:'Expresar ideas con otras palabras',choices:['Copiar textualmente','Expresar ideas con otras palabras','Resumir un texto','Traducir un idioma']},
+  ]},
+  { id:'literatura', name:'Literatura', icon:'📜', tier:3, req:['figuras','redaccion'], questions:[
+    {type:'choice',text:'¿Quién escribió "Don Quijote de la Mancha"?',answer:'Miguel de Cervantes',choices:['Pablo Neruda','Gabriel García Márquez','Miguel de Cervantes','Mario Vargas Llosa']},
+    {type:'choice',text:'¿Qué es el género lírico?',answer:'Expresión de sentimientos a través de la poesía',choices:['Obras de teatro','Expresión de sentimientos a través de la poesía','Cuentos de aventura','Novelas históricas']},
+    {type:'choice',text:'¿Qué es el género narrativo?',answer:'Relato de hechos reales o imaginarios',choices:['Representación teatral','Relato de hechos reales o imaginarios','Expresión poética','Texto informativo']},
+    {type:'choice',text:'¿Qué es el género dramático?',answer:'Obras escritas para ser representadas',choices:['Obras escritas para ser representadas','Poemas épicos','Novelas de aventura','Textos informativos']},
+    {type:'choice',text:'¿Qué es el realismo literario?',answer:'Movimiento que representa la realidad tal como es',choices:['Literatura fantástica','Movimiento que representa la realidad tal como es','Literatura infantil','Poesía romántica']},
+    {type:'choice',text:'¿Qué es una epopeya?',answer:'Poema largo sobre hazañas heroicas',choices:['Obra de teatro corta','Poema largo sobre hazañas heroicas','Cuento infantil','Novela de amor']},
+    {type:'choice',text:'¿Qué es el protagonista?',answer:'Personaje principal de la obra',choices:['El autor del libro','El narrador','Personaje principal de la obra','El lector']},
+    {type:'choice',text:'¿Qué es el clímax en una obra?',answer:'Momento de mayor tensión',choices:['El inicio de la obra','El final de la obra','Momento de mayor tensión','La presentación de personajes']},
+  ]},
+  { id:'comunicacion_mix', name:'Desafío Final', icon:'🏆', tier:3, req:['literatura','redaccion'], questions:[
+    {type:'choice',text:'¿Cuál es la figura en "sus ojos son luceros"?',answer:'Metáfora',choices:['Símil','Metáfora','Hipérbole','Ironía']},
+    {type:'choice',text:'¿Qué conecta ideas contrarias?',answer:'Sin embargo',choices:['Además','Sin embargo','Por lo tanto','También']},
+    {type:'choice',text:'¿Cuál es el antónimo de "alegría"?',answer:'Tristeza',choices:['Felicidad','Gozo','Tristeza','Júbilo']},
+    {type:'choice',text:'¿Qué tipo de texto es una receta de cocina?',answer:'Instructivo',choices:['Narrativo','Poético','Instructivo','Argumentativo']},
+    {type:'choice',text:'¿Cuál es el sinónimo de "comenzar"?',answer:'Iniciar',choices:['Terminar','Iniciar','Pausar','Frenar']},
+    {type:'choice',text:'¿Qué signo se usa para enumerar?',answer:'La coma',choices:['El punto','Los dos puntos','La coma','El guion']},
+  ]},
+];
+
+const ALL_SPEED_QUESTIONS = UNITS.flatMap(u => u.questions.filter(q => q.type === 'choice'));
+
+let state = { xp:0, lives:5, streak:0, completed:{}, username:'', currentUnit:null, qIndex:0, correct:0, answered:false, selectedAnswer:null, livesLastLost:null, lastLessonDate:null };
+let currentUser = null;
+let authMode = 'login';
+let speedTimer = null, speedTimeLeft = 60, speedScore = 0, speedStreak = 0, speedBestStreak = 0;
+let aiQuestions = [], aiIndex = 0, aiCorrect = 0, aiAnswered = false, aiSelected = null;
+let unitTimer = null, unitTimeLeft = 0;
+
+function getLevel(xp){
+  if(xp>=500) return '🏆 Nivel 5 — Maestro';
+  if(xp>=300) return '💎 Nivel 4 — Experto';
+  if(xp>=150) return '🥇 Nivel 3 — Avanzado';
+  if(xp>=50) return '⭐ Nivel 2 — Intermedio';
+  return '🌱 Nivel 1 — Principiante';
+}
+
+setTimeout(async () => {
+  const {data:{session}} = await sbClient.auth.getSession();
+  if(session?.user){ currentUser=session.user; await loadProfile(); showScreen('home'); renderHome(); }
+  else{ showScreen('auth'); }
+}, 500);
+
+sbClient.auth.onAuthStateChange(async (event, session) => {
+  if(event==='SIGNED_OUT'){ currentUser=null; showScreen('auth'); }
+  else if(event==='SIGNED_IN' && session?.user){ currentUser=session.user; await loadProfile(); showScreen('home'); renderHome(); }
+});
+
+function switchTab(mode){
+  authMode=mode;
+  document.getElementById('tab-login').classList.toggle('active',mode==='login');
+  document.getElementById('tab-register').classList.toggle('active',mode==='register');
+  document.getElementById('auth-btn').textContent=mode==='login'?'Iniciar sesión':'Registrarse';
+  document.getElementById('auth-error').style.display='none';
+  document.getElementById('auth-success').style.display='none';
+}
+
+async function handleAuth(){
+  const email=document.getElementById('auth-email').value.trim(), password=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('auth-error'), sucEl=document.getElementById('auth-success');
+  errEl.style.display='none'; sucEl.style.display='none';
+  if(!email||!password){errEl.textContent='Por favor completa todos los campos.';errEl.style.display='block';return;}
+  const btn=document.getElementById('auth-btn'); btn.disabled=true; btn.textContent='Cargando...';
+  if(authMode==='register'){
+    const {error}=await sbClient.auth.signUp({email,password});
+    if(error){errEl.textContent=error.message;errEl.style.display='block';}
+    else{sucEl.textContent='¡Registro exitoso! Revisa tu correo.';sucEl.style.display='block';}
+    btn.disabled=false; btn.textContent='Registrarse';
+  } else {
+    const {data,error}=await sbClient.auth.signInWithPassword({email,password});
+    if(error){
+      errEl.textContent='Correo o contraseña incorrectos.';
+      errEl.style.display='block';
+      btn.disabled=false; btn.textContent='Iniciar sesión';
+    } else {
+      currentUser=data.user;
+      await loadProfile();
+      showScreen('home');
+      renderHome();
+      btn.disabled=false; btn.textContent='Iniciar sesión';
+    }
+  }
+}
+
+async function loginGoogle(){ await sbClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://linguatech.vercel.app'}}); }
+async function logout(){ await sbClient.auth.signOut(); state={xp:0,lives:5,streak:0,completed:{},username:'',currentUnit:null,qIndex:0,correct:0,answered:false,selectedAnswer:null,livesLastLost:null,lastLessonDate:null}; showScreen('auth'); }
+
+async function loadProfile(){
+  const {data}=await sbClient.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(data){
+    state.xp=data.xp||0;
+    state.lives=data.lives||5;
+    state.streak=data.streak||0;
+    state.completed=data.completed||{};
+    state.username=data.username||'';
+    state.livesLastLost=data.lives_last_lost||null;
+    state.lastLessonDate=data.last_lesson_date||null;
+    if(state.lives<5&&state.livesLastLost){
+      const now=new Date(), lastLost=new Date(state.livesLastLost);
+      const hoursElapsed=(now-lastLost)/(1000*60*60);
+      const livesToRestore=Math.floor(hoursElapsed/3);
+      if(livesToRestore>0){
+        state.lives=Math.min(5,state.lives+livesToRestore);
+        state.livesLastLost=state.lives>=5?null:new Date(lastLost.getTime()+livesToRestore*3*60*60*1000).toISOString();
+        await sbClient.from('profiles').update({lives:state.lives,lives_last_lost:state.livesLastLost}).eq('id',currentUser.id);
+      }
+    }
+  }
+  else{ await sbClient.from('profiles').insert({id:currentUser.id,email:currentUser.email,xp:0,lives:5,streak:0,completed:{},username:''}); }
+}
+
+async function saveProfile(){
+  if(!currentUser)return;
+  const ind=document.getElementById('saving-indicator');
+  if(ind)ind.textContent='Guardando...';
+  await sbClient.from('profiles').upsert({id:currentUser.id,email:currentUser.email,xp:state.xp,lives:state.lives,streak:state.streak,completed:state.completed,username:state.username,lives_last_lost:state.livesLastLost||null,last_lesson_date:state.lastLessonDate||null,updated_at:new Date().toISOString()});
+  if(ind){ind.textContent='✓ Progreso guardado';setTimeout(()=>ind.textContent='',2000);}
+}
+
+async function saveUsername(){
+  const val=document.getElementById('profile-username-input').value.trim();
+  if(!val)return; state.username=val; await saveProfile(); renderProfile(); renderHome(); showXpToast('✓ Nombre guardado');
+}
+
+// SPEED MODE
+function startSpeedMode(){
+  if(speedTimer)clearInterval(speedTimer);
+  speedTimeLeft=60; speedScore=0; speedStreak=0; speedBestStreak=0;
+  document.getElementById('speed-intro-view').style.display='none';
+  document.getElementById('speed-result-view').style.display='none';
+  document.getElementById('speed-game-view').style.display='block';
+  document.getElementById('timer-count2').textContent=60;
+  document.getElementById('speed-score').textContent=0;
+  loadSpeedQuestion();
+  speedTimer=setInterval(()=>{
+    speedTimeLeft--;
+    document.getElementById('timer-count2').textContent=speedTimeLeft;
+    const pill=document.getElementById('timer-pill2');
+    pill.className=speedTimeLeft>30?'timer-pill':speedTimeLeft>10?'timer-pill warning':'timer-pill danger';
+    if(speedTimeLeft<=0){clearInterval(speedTimer);endSpeedMode();}
+  },1000);
+}
+
+function loadSpeedQuestion(){
+  const q=ALL_SPEED_QUESTIONS[Math.floor(Math.random()*ALL_SPEED_QUESTIONS.length)];
+  document.getElementById('speed-q-text').textContent=q.text;
+  document.getElementById('speed-streak-display').textContent=`Racha: ${speedStreak} 🔥`;
+  const shuffled=[...q.choices].sort(()=>Math.random()-0.5);
+  document.getElementById('speed-choices').innerHTML=shuffled.map(c=>`<button class="speed-choice" onclick="speedAnswer(this,'${c}','${q.answer}')">${c}</button>`).join('');
+}
+
+function speedAnswer(btn,val,answer){
+  document.querySelectorAll('.speed-choice').forEach(b=>b.disabled=true);
+  const correct=val===answer;
+  btn.classList.add(correct?'correct':'wrong');
+  if(!correct){ document.querySelectorAll('.speed-choice').forEach(b=>{if(b.textContent===answer)b.classList.add('correct');}); }
+  if(correct){
+    speedScore++; speedStreak++;
+    if(speedStreak>speedBestStreak)speedBestStreak=speedStreak;
+    const bonus=speedStreak>=5?20:speedStreak>=3?15:10;
+    state.xp+=bonus; showXpToast(`+${bonus} XP`);
+    document.getElementById('speed-score').textContent=speedScore;
+  } else { speedStreak=0; }
+  document.getElementById('speed-streak-display').textContent=`Racha: ${speedStreak} 🔥`;
+  setTimeout(loadSpeedQuestion,600);
+}
+
+function endSpeedMode(){
+  if(speedTimer){clearInterval(speedTimer);speedTimer=null;}
+  document.getElementById('speed-game-view').style.display='none';
+  document.getElementById('speed-result-view').style.display='block';
+  const xpEarned=speedScore*10;
+  document.getElementById('speed-result-icon').textContent=speedScore>=15?'🏆':speedScore>=8?'⚡':'😅';
+  document.getElementById('speed-result-title').textContent=speedScore>=15?'¡Increíble!':speedScore>=8?'¡Muy bien!':'Sigue practicando';
+  document.getElementById('speed-result-sub').textContent=`Respondiste ${speedScore} preguntas correctamente`;
+  document.getElementById('sr-correct').textContent=speedScore;
+  document.getElementById('sr-xp').textContent='+'+xpEarned;
+  document.getElementById('sr-streak').textContent=speedBestStreak;
+  saveProfile();
+}
+
+// AI MODE
+const k=['sk-ant-api03-5IUzdm-QCZ','ss7QnZDQakezBYFgpJL','JhTtQDV1voPSKCyoxSltSg','reZpb456MwHr-2OG1D87DmoLszN-_Yudg7Q-3NW7sgAA'].join('');
+async function selectAiTopic(topic){
+  document.querySelectorAll('.ai-topic-btn').forEach(b=>b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('ai-topic-select').style.display='none';
+  document.getElementById('ai-loading').style.display='block';
+  document.getElementById('ai-question-area').style.display='none';
+  document.getElementById('ai-result').style.display='none';
+  aiQuestions=[]; aiIndex=0; aiCorrect=0;
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1000,
+        messages:[{role:'user',content:`Genera exactamente 5 preguntas de comunicación y lenguaje sobre el tema: "${topic}". Responde ÚNICAMENTE con un JSON válido, sin texto adicional, sin markdown. El formato debe ser exactamente este array JSON: [{"question":"¿Cuál es el sinónimo de feliz?","choices":["Triste","Contento","Enojado","Asustado"],"answer":"Contento","hint":"Piensa en una emoción positiva"},...] Reglas: preguntas en español, 4 opciones de texto por pregunta, una sola respuesta correcta, dificultad progresiva.`}]
+      })
+    });
+    const data=await res.json();
+    const text=data.content[0].text.replace(/```json|```/g,'').trim();
+    aiQuestions=JSON.parse(text);
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-question-area').style.display='block';
+    showAiQuestion();
+  } catch(e){
+    document.getElementById('ai-loading').style.display='none';
+    document.getElementById('ai-topic-select').style.display='block';
+    alert('Error generando preguntas. Intenta de nuevo.');
+  }
+}
+
+function showAiQuestion(){
+  if(aiIndex>=aiQuestions.length){finishAiMode();return;}
+  aiAnswered=false; aiSelected=null;
+  const q=aiQuestions[aiIndex];
+  document.getElementById('ai-counter').textContent=`Pregunta ${aiIndex+1} de ${aiQuestions.length}`;
+  document.getElementById('ai-q-text').textContent=q.question;
+  document.getElementById('ai-feedback').className='feedback-bar';
+  document.getElementById('ai-hint').style.display='none';
+  document.getElementById('ai-hint').textContent=q.hint||'';
+  document.getElementById('ai-next-btn').textContent='Comprobar';
+  document.getElementById('ai-next-btn').disabled=true;
+  const shuffled=[...q.choices].sort(()=>Math.random()-0.5);
+  document.getElementById('ai-choices').innerHTML=shuffled.map(c=>`<button class="choice-btn" onclick="selectAiChoice(this,'${c}')">${c}</button>`).join('');
+}
+
+function selectAiChoice(btn,val){
+  if(aiAnswered)return;
+  document.querySelectorAll('#ai-choices .choice-btn').forEach(b=>{b.style.borderColor='';b.style.background='';b.style.color='';});
+  btn.style.borderColor='#0ea5e9'; btn.style.background='#f0f9ff'; btn.style.color='#0ea5e9';
+  aiSelected=val; document.getElementById('ai-next-btn').disabled=false;
+}
+
+function aiNextQuestion(){
+  if(!aiAnswered){
+    aiAnswered=true;
+    const q=aiQuestions[aiIndex];
+    const correct=aiSelected===q.answer;
+    const fb=document.getElementById('ai-feedback');
+    if(correct){
+      aiCorrect++; fb.className='feedback-bar correct-fb';
+      document.getElementById('ai-fb-icon').className='ti ti-circle-check';
+      document.getElementById('ai-fb-text').textContent='¡Correcto! 🎉';
+      document.querySelectorAll('#ai-choices .choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});
+      state.xp+=10; showXpToast('+10 XP');
+    } else {
+      fb.className='feedback-bar wrong-fb';
+      document.getElementById('ai-fb-icon').className='ti ti-circle-x';
+      document.getElementById('ai-fb-text').textContent=`Incorrecto. La respuesta era: ${q.answer}`;
+      document.querySelectorAll('#ai-choices .choice-btn').forEach(b=>{
+        if(b.textContent===q.answer)b.classList.add('correct');
+        else if(b.textContent===aiSelected)b.classList.add('wrong');
+      });
+    }
+    document.querySelectorAll('#ai-choices .choice-btn').forEach(el=>el.disabled=true);
+    document.getElementById('ai-next-btn').textContent='Siguiente →';
+    document.getElementById('ai-next-btn').disabled=false;
+  } else { aiIndex++; showAiQuestion(); }
+}
+
+function showAiHint(){ document.getElementById('ai-hint').style.display='block'; }
+function finishAiMode(){
+  document.getElementById('ai-question-area').style.display='none';
+  document.getElementById('ai-result').style.display='block';
+  const xpEarned=aiCorrect*10;
+  document.getElementById('ai-result-sub').textContent=`Respondiste ${aiCorrect} de ${aiQuestions.length} correctamente`;
+  document.getElementById('ai-res-correct').textContent=aiCorrect;
+  document.getElementById('ai-res-xp').textContent='+'+xpEarned;
+  saveProfile();
+}
+function resetAiMode(){
+  document.getElementById('ai-result').style.display='none';
+  document.getElementById('ai-topic-select').style.display='block';
+  document.querySelectorAll('.ai-topic-btn').forEach(b=>b.classList.remove('selected'));
+}
+
+// RANKING
+async function renderRanking(){
+  const listEl=document.getElementById('rank-list'), podiumEl=document.getElementById('rank-podium'), myRankEl=document.getElementById('my-rank-card');
+  listEl.innerHTML='<div class="rank-loading">Cargando ranking...</div>'; podiumEl.innerHTML=''; myRankEl.innerHTML='';
+  const {data}=await sbClient.from('profiles').select('id,username,email,xp,streak,completed').order('xp',{ascending:false}).limit(50);
+  if(!data||data.length===0){listEl.innerHTML='<div class="rank-loading">Aún no hay usuarios.</div>';return;}
+  const myPos=data.findIndex(u=>u.id===currentUser.id)+1;
+  if(myPos>0){
+    const me=data[myPos-1], meName=me.username||me.email?.split('@')[0]||'Tú';
+    myRankEl.innerHTML=`<div class="my-rank-card"><div class="my-rank-pos">#${myPos}</div><div><div style="font-size:14px;font-weight:700;">Tu posición</div><div class="my-rank-label">${meName} · ${me.xp} XP</div></div></div>`;
+  }
+  const top3=data.slice(0,3);
+  const podiumOrder=top3.length>=3?[top3[1],top3[0],top3[2]]:top3.length===2?[top3[1],top3[0]]:[top3[0]];
+  const podiumClasses=top3.length>=3?['podium-2','podium-1','podium-3']:['podium-2','podium-1'];
+  const blockClasses=top3.length>=3?['podium-block podium-block-2','podium-block podium-block-1','podium-block podium-block-3']:['podium-block podium-block-2','podium-block podium-block-1'];
+  const medals=['🥈','🥇','🥉'];
+  podiumEl.innerHTML=podiumOrder.map((u,i)=>{
+    const name=u.username||u.email?.split('@')[0]||'?', initial=name.charAt(0).toUpperCase();
+    const crown=podiumClasses[i]==='podium-1'?'<div class="podium-crown">👑</div>':'';
+    return `<div class="podium-item ${podiumClasses[i]}">${crown}<div class="podium-avatar ${podiumClasses[i]}">${initial}</div><div class="podium-name">${name}</div><div class="podium-xp">${u.xp} XP</div><div class="${blockClasses[i]}">${medals[i]}</div></div>`;
+  }).join('');
+  listEl.innerHTML=data.map((u,i)=>{
+    const name=u.username||u.email?.split('@')[0]||'?', initial=name.charAt(0).toUpperCase();
+    const isMe=u.id===currentUser.id, posClass=i===0?'top1':i===1?'top2':i===2?'top3':'';
+    const posIcon=i===0?'🥇':i===1?'🥈':i===2?'🥉':`#${i+1}`;
+    const completedCount=Object.keys(u.completed||{}).length;
+    return `<div class="rank-row ${isMe?'me':''}"><div class="rank-pos ${posClass}">${posIcon}</div><div class="rank-avatar">${initial}</div><div class="rank-info"><div class="rank-name">${name}${isMe?' (Tú)':''}</div><div class="rank-sub">${completedCount} lecciones · Racha ${u.streak}</div></div><div class="rank-xp">${u.xp} XP</div></div>`;
+  }).join('');
+}
+
+function switchNav(screen){
+  if(speedTimer&&screen!=='speed'){clearInterval(speedTimer);speedTimer=null;}
+  ['home','speed','ai','ranking','profile'].forEach(s=>{const b=document.getElementById(`nav-${s}`);if(b)b.classList.toggle('active',s===screen);});
+  showScreen(screen);
+  if(screen==='home')renderHome();
+  if(screen==='ranking')renderRanking();
+  if(screen==='profile')renderProfile();
+  if(screen==='speed'){
+    document.getElementById('speed-intro-view').style.display='block';
+    document.getElementById('speed-game-view').style.display='none';
+    document.getElementById('speed-result-view').style.display='none';
+  }
+}
+
+function isUnlocked(unit){ return unit.req.every(r=>state.completed[r]); }
+
+function renderHome(){
+  const display=state.username||currentUser?.email||'', initial=(state.username||currentUser?.email||'?').charAt(0).toUpperCase();
+  document.getElementById('user-avatar').textContent=initial;
+  document.getElementById('user-name').textContent=display;
+  document.getElementById('home-xp').textContent=state.xp+' XP';
+  document.getElementById('home-streak').textContent=state.streak;
+  const livesEl=document.getElementById('home-lives');
+  if(state.lives>=5){ livesEl.textContent='5 (Full)'; }
+  else if(state.livesLastLost){
+    const now=new Date(), lastLost=new Date(state.livesLastLost);
+    const msUntilNext=(3*60*60*1000)-((now-lastLost)%(3*60*60*1000));
+    const h=Math.floor(msUntilNext/(1000*60*60));
+    const m=Math.floor((msUntilNext%(1000*60*60))/(1000*60));
+    const s=Math.floor((msUntilNext%(1000*60))/1000);
+    livesEl.textContent=`${state.lives} (${h}h ${m}m ${s}s)`;
+    if(!window.livesCountdown)window.livesCountdown=setInterval(()=>renderHome(),1000);
+  } else { livesEl.textContent=state.lives; }
+  [1,2,3].forEach(tier=>{
+    const grid=document.getElementById('grid-'+tier); grid.innerHTML='';
+    UNITS.filter(u=>u.tier===tier).forEach(u=>{
+      const done=!!state.completed[u.id], unlocked=isUnlocked(u);
+      const card=document.createElement('div');
+      card.className='unit-card'+(done?' completed':'')+((!unlocked)?' locked':'');
+      const badgeClass=done?'badge-done':(!unlocked?'badge-locked':tier===3?'badge-hard':'badge-new');
+      const badgeText=done?'✓ Listo':(!unlocked?'🔒':tier===3?'Avanzado':'Nuevo');
+      card.innerHTML=`<span class="unit-badge ${badgeClass}">${badgeText}</span><div class="unit-icon">${u.icon}</div><div class="unit-name">${u.name}</div><div class="unit-meta">${done?'★★★':(unlocked?'☆☆☆':'— — —')}</div>`;
+      if(unlocked)card.addEventListener('click',()=>startUnit(u.id));
+      grid.appendChild(card);
+    });
+  });
+}
+
+function renderProfile(){
+  const display=state.username||currentUser?.email||'Usuario', initial=display.charAt(0).toUpperCase();
+  const completedCount=Object.keys(state.completed).length;
+  document.getElementById('profile-avatar-big').textContent=initial;
+  document.getElementById('profile-display-name').textContent=display;
+  document.getElementById('profile-email').textContent=currentUser?.email||'';
+  document.getElementById('profile-xp').textContent=state.xp;
+  document.getElementById('profile-streak').textContent=state.streak;
+  document.getElementById('profile-completed').textContent=completedCount+'/'+UNITS.length;
+  document.getElementById('profile-level').textContent=getLevel(state.xp);
+  document.getElementById('profile-username-input').value=state.username||'';
+  const list=document.getElementById('lessons-list'); list.innerHTML='';
+  UNITS.forEach(u=>{
+    const done=!!state.completed[u.id], unlocked=isUnlocked(u);
+    const statusClass=done?'status-done':(!unlocked?'status-locked':'status-available');
+    const statusText=done?'✓ Completada':(!unlocked?'🔒 Bloqueada':'▶ Disponible');
+    list.innerHTML+=`<div class="lesson-row"><div class="lesson-info"><span class="lesson-icon">${u.icon}</span><span class="lesson-name">${u.name}</span></div><span class="lesson-status ${statusClass}">${statusText}</span></div>`;
+  });
+}
+
+function startUnit(id){
+  const unit=UNITS.find(u=>u.id===id);
+  if(unit.timeLimit){ showUnitModeSelector(id); }
+  else {
+    state.currentUnit=id; state.qIndex=0; state.correct=0; state.answered=false; state.selectedAnswer=null;
+    if(unitTimer){clearInterval(unitTimer);unitTimer=null;}
+    showScreen('exercise'); renderQuestion();
+  }
+}
+
+function showUnitModeSelector(id){
+  const unit=UNITS.find(u=>u.id===id);
+  const existing=document.getElementById('mode-selector-overlay');
+  if(existing)existing.remove();
+  const overlay=document.createElement('div');
+  overlay.id='mode-selector-overlay';
+  overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  overlay.innerHTML=`<div style="background:#1e1e2e;border-radius:20px;padding:32px;width:300px;text-align:center;"><h2 style="color:#fff;margin-bottom:8px;">${unit.icon} ${unit.name}</h2><p style="color:#9ca3af;margin-bottom:24px;">¿Cómo quieres practicar?</p><button onclick="startUnitMode('${id}',false)" style="width:100%;padding:14px;margin-bottom:12px;border-radius:12px;border:none;background:#0ea5e9;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;">📝 Sin tiempo</button><button onclick="startUnitMode('${id}',true)" style="width:100%;padding:14px;border-radius:12px;border:none;background:#f59e0b;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;">⚡ Contrarreloj (${unit.timeLimit}s)</button></div>`;
+  document.body.appendChild(overlay);
+}
+
+function startUnitMode(id,timed){
+  const overlay=document.getElementById('mode-selector-overlay');
+  if(overlay)overlay.remove();
+  const unit=UNITS.find(u=>u.id===id);
+  state.currentUnit=id; state.qIndex=0; state.correct=0; state.answered=false; state.selectedAnswer=null;
+  if(unitTimer){clearInterval(unitTimer);unitTimer=null;}
+  if(timed){unitTimeLeft=unit.timeLimit;}
+  showScreen('exercise'); renderQuestion();
+  if(timed)startUnitTimer();
+  else{ const timerEl=document.getElementById('unit-timer'); if(timerEl)timerEl.style.display='none'; }
+}
+
+function startUnitTimer(){
+  const timerEl=document.getElementById('unit-timer');
+  if(timerEl)timerEl.style.display='block';
+  updateUnitTimerDisplay();
+  unitTimer=setInterval(()=>{
+    unitTimeLeft--;
+    updateUnitTimerDisplay();
+    if(unitTimeLeft<=0){clearInterval(unitTimer);unitTimer=null;endUnitByTimer();}
+  },1000);
+}
+
+function updateUnitTimerDisplay(){ const timerEl=document.getElementById('unit-timer-count'); if(timerEl)timerEl.textContent=unitTimeLeft; }
+
+function endUnitByTimer(){
+  const unit=UNITS.find(u=>u.id===state.currentUnit), total=unit.questions.length;
+  setTimeout(()=>{
+    showScreen('result');
+    document.getElementById('result-icon').textContent='⏱️';
+    document.getElementById('result-title').textContent='¡Tiempo!';
+    document.getElementById('result-sub').textContent=`Respondiste ${state.correct} de ${total} correctamente`;
+    document.getElementById('r-correct').textContent=state.correct;
+    document.getElementById('r-wrong').textContent=total-state.correct;
+    const xp=state.correct*10;
+    document.getElementById('r-xp').textContent='+'+xp;
+    state.xp+=xp; saveProfile();
+  },500);
+}
+
+function renderQuestion(){
+  const unit=UNITS.find(u=>u.id===state.currentUnit), q=unit.questions[state.qIndex], total=unit.questions.length;
+  document.getElementById('ex-lives').textContent=state.lives;
+  document.getElementById('progress-bar').style.width=(state.qIndex/total*100)+'%';
+  document.getElementById('q-label').textContent=`PREGUNTA ${state.qIndex+1} DE ${total}`;
+  document.getElementById('q-text').textContent=q.text;
+  document.getElementById('feedback-bar').className='feedback-bar';
+  document.getElementById('check-btn').textContent='Comprobar';
+  document.getElementById('check-btn').disabled=true;
+  state.answered=false; state.selectedAnswer=null;
+  const body=document.getElementById('q-body');
+  if(q.type==='choice'){
+    const shuffled=[...q.choices].sort(()=>Math.random()-0.5);
+    body.innerHTML=`<div class="choices-grid">${shuffled.map(c=>`<button class="choice-btn" onclick="selectChoice(this,'${c}')">${c}</button>`).join('')}</div>`;
+  } else {
+    body.innerHTML=`<input class="fill-input" type="text" id="fill-input" placeholder="Escribe tu respuesta..." oninput="onFillInput(this)"/>`;
+    setTimeout(()=>document.getElementById('fill-input')?.focus(),50);
+  }
+}
+
+function selectChoice(btn,val){
+  if(state.answered)return;
+  document.querySelectorAll('.choice-btn').forEach(b=>{b.style.borderColor='';b.style.background='';b.style.color='';});
+  btn.style.borderColor='#0ea5e9'; btn.style.background='#f0f9ff'; btn.style.color='#0ea5e9';
+  state.selectedAnswer=val; document.getElementById('check-btn').disabled=false;
+}
+
+function onFillInput(input){
+  document.getElementById('check-btn').disabled=input.value.trim()==='';
+  state.selectedAnswer=input.value.trim()===''?null:input.value.trim();
+}
+
+function checkAnswer(){
+  if(state.answered){nextQuestion();return;}
+  state.answered=true;
+  const unit=UNITS.find(u=>u.id===state.currentUnit), q=unit.questions[state.qIndex];
+  const correct=state.selectedAnswer?.toString().toLowerCase()===q.answer?.toString().toLowerCase();
+  const fb=document.getElementById('feedback-bar');
+  if(correct){
+    state.correct++; fb.className='feedback-bar correct-fb';
+    document.getElementById('fb-icon').className='ti ti-circle-check';
+    document.getElementById('fb-text').textContent='¡Correcto! 🎉';
+    if(q.type==='choice'){document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');});}
+    else{const inp=document.getElementById('fill-input');if(inp){inp.style.borderColor='#10b981';inp.style.background='#dcfce7';}}
+    showXpToast('+10 XP');
+  } else {
+    state.lives=Math.max(0,state.lives-1);
+    if(state.lives<5)state.livesLastLost=new Date().toISOString();
+    document.getElementById('ex-lives').textContent=state.lives;
+    fb.className='feedback-bar wrong-fb';
+    document.getElementById('fb-icon').className='ti ti-circle-x';
+    document.getElementById('fb-text').textContent=`Incorrecto. La respuesta era: ${q.answer}`;
+    if(q.type==='choice'){document.querySelectorAll('.choice-btn').forEach(b=>{if(b.textContent===q.answer)b.classList.add('correct');else if(b.textContent===state.selectedAnswer)b.classList.add('wrong');});}
+    else{const inp=document.getElementById('fill-input');if(inp){inp.style.borderColor='#ef4444';inp.style.background='#fee2e2';}}
+  }
+  document.querySelectorAll('.choice-btn,.fill-input').forEach(el=>el.disabled=true);
+  const btn=document.getElementById('check-btn'); btn.textContent='Siguiente →'; btn.disabled=false;
+}
+
+function nextQuestion(){
+  const unit=UNITS.find(u=>u.id===state.currentUnit); state.qIndex++;
+  if(state.qIndex>=unit.questions.length||state.lives===0)finishLesson(); else renderQuestion();
+}
+
+function finishLesson(){
+  const unit=UNITS.find(u=>u.id===state.currentUnit), total=unit.questions.length;
+  const won=state.correct>=Math.ceil(total*0.6), xpEarned=state.correct*10;
+  state.xp+=xpEarned;
+  if(won){
+    state.completed[state.currentUnit]=true;
+    const today=new Date().toISOString().split('T')[0];
+    const lastDate=state.lastLessonDate||null;
+    if(lastDate===null){ state.streak=1; }
+    else {
+      const diff=(new Date(today)-new Date(lastDate))/(1000*60*60*24);
+      if(diff===1)state.streak++;
+      else if(diff>1)state.streak=1;
+    }
+    state.lastLessonDate=today;
+  } else {
+    const today=new Date().toISOString().split('T')[0];
+    const lastDate=state.lastLessonDate||null;
+    if(lastDate&&(new Date(today)-new Date(lastDate))/(1000*60*60*24)>1)state.streak=0;
+  }
+  saveProfile();
+  document.getElementById('result-icon').textContent=won?'🎉':'😅';
+  document.getElementById('result-title').textContent=won?'¡Lección completada!':'Sigue intentando';
+  document.getElementById('result-sub').textContent=won?`Respondiste ${state.correct} de ${total} correctamente`:`Respondiste ${state.correct} de ${total}. ¡Puedes mejorar!`;
+  document.getElementById('r-correct').textContent=state.correct;
+  document.getElementById('r-wrong').textContent=total-state.correct;
+  document.getElementById('r-xp').textContent='+'+xpEarned+' XP';
+  showScreen('result');
+}
+
+function showXpToast(msg){const t=document.getElementById('xp-toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500);}
+function retryLesson(){startUnit(state.currentUnit);}
+function goHome(){if(state.lives===0)state.lives=5;switchNav('home');}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');
+</script>
+</body>
+</html>
